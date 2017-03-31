@@ -42,17 +42,13 @@ public Action onPlayerSpawn(Handle event, const char[] name, bool dontBroadcast)
 	char cname[MAX_NAME_LENGTH];
 	GetClientName(client, cname, sizeof(cname));
 	char match[MAX_NAME_LENGTH];
-	bool changed = false;
 	MatchRegex(urlPattern, cname, theError);
 	if (GetRegexSubString(urlPattern, 0, match, sizeof(match))) {
-		if (changed)
-			return;
 		ReplaceString(cname, sizeof(cname), match, "", false);
 		if (StrEqual(cname, ""))
 			strcopy(cname, sizeof(cname), "NoName");
 		locked[client] = true;
 		SetClientName(client, cname);
-		changed = true;
 	}
 }
 
