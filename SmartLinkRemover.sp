@@ -67,12 +67,12 @@ public Action onPlayerNameChange(Handle event, const char[] name, bool dontBroad
 {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 	if (locked[client])
-		return Plugin_Changed;
+		return Plugin_Handled;
 		
 	char newname[MAX_NAME_LENGTH];
 	GetEventString(event, "newname", newname, sizeof(newname));
 	if (checkNameURL(client, newname))
-		return Plugin_Changed;
+		return Plugin_Handled;
 	
 	return Plugin_Continue;
 }
