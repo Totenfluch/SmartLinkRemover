@@ -29,7 +29,7 @@ public void OnPluginStart()
 	
 	char error[256];
 	urlPattern = CompileRegex("((http:[/]{2}|https:[/]{2}|www[.])?[-a-zA-Z0-9]{2,}[.][a-zA-Z]{2,5})", PCRE_CASELESS, error, sizeof(error), theError);
-	if (!StrEqual(error, ""))
+	if (theError != REGEX_ERROR_NONE)
 		LogError(error);
 }
 
