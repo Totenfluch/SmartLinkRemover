@@ -1,7 +1,7 @@
 #pragma semicolon 1
 
-#define PLUGIN_AUTHOR "Totenfluch"
-#define PLUGIN_VERSION "1.00"
+#define PLUGIN_AUTHOR "Totenfluch [Fix by Agent Wesker]"
+#define PLUGIN_VERSION "1.2"
 
 #include <sourcemod>
 #include <sdktools>
@@ -22,60 +22,70 @@ public Plugin myinfo =
 	url = "https://totenfluch.de"
 };
 
-public void OnPluginStart() {
-	HookEvent("player_spawn", onPlayerSpawn);
+public void OnPluginStart()
+{
 	HookEvent("player_changename", onPlayerNameChange, EventHookMode_Pre);
 	HookUserMessage(GetUserMessageId("SayText2"), SayText2, true);
 	
 	char error[256];
-	urlPattern = CompileRegex("([-a-zA-Z0-9]*(([.])([a-zA-Z]){2,5}))", PCRE_CASELESS, error, sizeof(error), theError);
+	urlPattern = CompileRegex("((http:[/]{2}|https:[/]{2}|www[.])?[-a-zA-Z0-9]{2,}[.][a-zA-Z]{2,5})", PCRE_CASELESS, error, sizeof(error), theError);
 	if (!StrEqual(error, ""))
 		LogError(error);
 }
 
-public void OnClientPostAdminCheck(int client) {
+public void OnClientPostAdminCheck(int client)
+{
 	locked[client] = false;
-}
-
-public Action onPlayerSpawn(Handle event, const char[] name, bool dontBroadcast) {
-	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 	char cname[MAX_NAME_LENGTH];
 	GetClientName(client, cname, sizeof(cname));
-	char match[MAX_NAME_LENGTH];
-	MatchRegex(urlPattern, cname, theError);
-	if (GetRegexSubString(urlPattern, 0, match, sizeof(match))) {
-		ReplaceString(cname, sizeof(cname), match, "", false);
-		if (StrEqual(cname, ""))
-			strcopy(cname, sizeof(cname), "NoName");
-		locked[client] = true;
-		SetClientName(client, cname);
-	}
+	checkNameURL(client, cname);
 }
 
-public Action onPlayerNameChange(Handle event, const char[] name, bool dontBroadcast) {
+static bool checkNameURL(int client, char name[MAX_NAME_LENGTH])
+{
+	char match[MAX_NAME_LENGTH];
+	int matchCount = MatchRegex(urlPattern, name, theError);
+	if (matchCount > 0)
+	{
+		locked[client] = true;
+		for (int i = 0; i < matchCount; i++)
+		{
+			//Substrings start at 0
+			GetRegexSubString(urlPattern, i, match, sizeof(match));
+			ReplaceString(name, sizeof(name), match, "", false);
+		}
+		if (StrEqual(name, ""))
+			strcopy(name, sizeof(name), "NoName");
+		SetClientName(client, name);
+		locked[client] = false;
+		return true;
+	}
+	return false;
+}
+
+public Action onPlayerNameChange(Handle event, const char[] name, bool dontBroadcast)
+{
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 	if (locked[client])
 		return Plugin_Changed;
-	char cname[MAX_NAME_LENGTH];
-	GetClientName(client, cname, sizeof(cname));
-	char match[MAX_NAME_LENGTH];
-	MatchRegex(urlPattern, cname, theError);
-	if (GetRegexSubString(urlPattern, 0, match, sizeof(match))) {
-		if (locked[client])
-			return Plugin_Changed;
-		ReplaceString(cname, sizeof(cname), match, "", false);
-		if (StrEqual(cname, ""))
-			strcopy(cname, sizeof(cname), "NoName");
-		locked[client] = true;
-		SetClientName(client, cname);
-		locked[client] = false;
-	}
+		
+	char newname[MAX_NAME_LENGTH];
+	GetEventString(event, "newname", newname, sizeof(newname));
+	if (checkNameURL(client, newname))
+		return Plugin_Changed;
 	
-	return Plugin_Changed;
+	return Plugin_Continue;
+}
+
+public void OnMapEnd()
+{
+	if (urlPattern != INVALID_HANDLE)
+		CloseHandle(urlPattern);
 }
 
 // BY https://forums.alliedmods.net/member.php?u=67162
-public Action SayText2(UserMsg msg_id, Handle bf, int[] players, int playersNum, bool reliable, bool init) {
+public Action SayText2(UserMsg msg_id, Handle bf, int[] players, int playersNum, bool reliable, bool init)
+{
 	if (!reliable)
 		return Plugin_Continue;
 	
