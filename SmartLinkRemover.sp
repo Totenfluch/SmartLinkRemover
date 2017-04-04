@@ -1,7 +1,7 @@
 #pragma semicolon 1
 
 #define PLUGIN_AUTHOR "Totenfluch [Fix by Agent Wesker]"
-#define PLUGIN_VERSION "1.3"
+#define PLUGIN_VERSION "1.4"
 
 #include <sourcemod>
 #include <sdktools>
@@ -56,18 +56,33 @@ static bool checkNameURL(int client, char name[MAX_NAME_LENGTH])
 		}
 		if (StrEqual(name, ""))
 			strcopy(name, sizeof(name), "URLRemoved");
-			
+		
 		PrintToServer("[SmartLinkRemover] Changed '%N' to '%s'", client, name);
 		
+		//Thanks to https://forums.alliedmods.net/showpost.php?p=2497716&postcount=9
 		char alias[32];
 		Format(alias, sizeof(alias), "\t#%i", client);
 		SetClientName(client, alias);
-		RequestFrame(SetClientName, client, name); 
+		
+		DataPack packName = new DataPack();
+		packName.WriteCell(client);
+		packName.WriteString(name);
+		RequestFrame(delayedNameChange, packName); 
 		
 		locked[client] = false;
 		return true;
 	}
 	return false;
+}
+
+static void delayedNameChange(any data)
+{
+	DataPack packName = data;
+	packName.Reset();
+	int client = packName.ReadCell();
+	char name[MAX_NAME_LENGTH];
+	packName.ReadString(name, sizeof(name));
+	SetClientName(client, name);
 }
 
 public Action onPlayerNameChange(Handle event, const char[] name, bool dontBroadcast)
