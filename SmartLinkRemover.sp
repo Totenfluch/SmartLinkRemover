@@ -77,12 +77,6 @@ public Action onPlayerNameChange(Handle event, const char[] name, bool dontBroad
 	return Plugin_Continue;
 }
 
-public void OnMapEnd()
-{
-	if (urlPattern != INVALID_HANDLE)
-		CloseHandle(urlPattern);
-}
-
 // BY https://forums.alliedmods.net/member.php?u=67162
 public Action SayText2(UserMsg msg_id, Handle bf, int[] players, int playersNum, bool reliable, bool init)
 {
