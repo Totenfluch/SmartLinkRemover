@@ -55,7 +55,7 @@ static bool checkNameURL(int client, char name[MAX_NAME_LENGTH])
 			ReplaceString(name, sizeof(name), match, "", false);
 		}
 		if (StrEqual(name, ""))
-			strcopy(name, sizeof(name), "NoName");
+			name = "URLRemoved";
 		SetClientName(client, name);
 		locked[client] = false;
 		return true;
