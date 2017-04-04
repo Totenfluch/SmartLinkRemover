@@ -56,8 +56,14 @@ static bool checkNameURL(int client, char name[MAX_NAME_LENGTH])
 		}
 		if (StrEqual(name, ""))
 			strcopy(name, sizeof(name), "URLRemoved");
+			
 		PrintToServer("[SmartLinkRemover] Changed '%N' to '%s'", client, name);
-		SetClientName(client, name);
+		
+		char alias[32];
+		Format(alias, sizeof(alias), "\t#%i", client);
+		SetClientName(client, alias);
+		RequestFrame(SetClientName, client, name); 
+		
 		locked[client] = false;
 		return true;
 	}
