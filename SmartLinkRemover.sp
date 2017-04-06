@@ -1,7 +1,6 @@
 #pragma semicolon 1
 
-#define PLUGIN_AUTHOR "Totenfluch [Fix by Agent Wesker]"
-#define PLUGIN_VERSION "1.5.2"
+#define PLUGIN_VERSION "1.5.3"
 
 #include <sourcemod>
 #include <sdktools>
@@ -16,7 +15,7 @@ bool locked[MAXPLAYERS + 1];
 public Plugin myinfo = 
 {
 	name = "Smart URL Remover", 
-	author = PLUGIN_AUTHOR, 
+	author = "Totenfluch [Fix by Agent Wesker]", 
 	description = "Removes all Links from Player Names", 
 	version = PLUGIN_VERSION, 
 	url = "https://totenfluch.de"
@@ -24,6 +23,8 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
+	CreateConVar("sm_smarturlremover_version", PLUGIN_VERSION, "Smart URL Remover Version", FCVAR_REPLICATED|FCVAR_DONTRECORD);
+
 	HookEvent("player_changename", onPlayerNameChange, EventHookMode_Pre);
 	HookUserMessage(GetUserMessageId("SayText2"), SayText2, true);
 	
@@ -36,6 +37,10 @@ public void OnPluginStart()
 public void OnClientPostAdminCheck(int client)
 {
 	locked[client] = false;
+	if (checkImmunity(client))
+	{
+		return;
+	}
 	char cname[MAX_NAME_LENGTH];
 	GetClientName(client, cname, sizeof(cname));
 	checkNameURL(client, cname);
@@ -87,7 +92,7 @@ static void delayedNameChange(any data)
 public Action onPlayerNameChange(Handle event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
-	if (locked[client])
+	if (locked[client] || checkImmunity(client))
 		return Plugin_Handled;
 		
 	char newname[MAX_NAME_LENGTH];
@@ -122,3 +127,9 @@ public Action SayText2(UserMsg msg_id, Handle bf, int[] players, int playersNum,
 	}
 	return Plugin_Continue;
 } 
+
+
+public bool checkImmunity(int client)
+{
+	return (IsFakeClient(client) || IsClientReplay(client) || IsClientSourceTV(client) || CheckCommandAccess(client, "sm_smartlinkremover", ADMFLAG_ROOT, false));
+}
