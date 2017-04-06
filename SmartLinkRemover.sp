@@ -81,6 +81,7 @@ static void delayedNameChange(any data)
 	char name[MAX_NAME_LENGTH];
 	packName.ReadString(name, sizeof(name));
 	SetClientName(client, name);
+	delete packName;
 }
 
 public Action onPlayerNameChange(Handle event, const char[] name, bool dontBroadcast)
