@@ -58,9 +58,10 @@ static bool checkNameURL(int client, char name[MAX_NAME_LENGTH])
 		{
 			//Substrings start at 0
 			GetRegexSubString(urlPattern, i, match, sizeof(match));
-			ReplaceString(name, sizeof(name), match, "", false);
+			if (name[0] && match[0])
+				ReplaceString(name, sizeof(name), match, "", false);
 		}
-		if (StrEqual(name, ""))
+		if (!name[0])
 			strcopy(name, sizeof(name), "URLRemoved");
 		
 		//Thanks to https://forums.alliedmods.net/showpost.php?p=2497716&postcount=9
