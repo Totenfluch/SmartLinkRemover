@@ -62,7 +62,7 @@ static bool checkNameURL(int client, char name[MAX_NAME_LENGTH])
 				ReplaceString(name, sizeof(name), match, "", false);
 		}
 		if (!name[0])
-			strcopy(name, sizeof(name), "URLRemoved");
+			strcopy(name, sizeof(name), "URL Removed");
 		
 		//Thanks to https://forums.alliedmods.net/showpost.php?p=2497716&postcount=9
 		char alias[32];
