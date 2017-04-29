@@ -1,6 +1,6 @@
 #pragma semicolon 1
 
-#define PLUGIN_VERSION "1.5.8"
+#define PLUGIN_VERSION "1.6.1"
 
 #include <sourcemod>
 #include <sdktools>
@@ -11,6 +11,7 @@
 Regex urlPattern;
 RegexError theError;
 bool locked[MAXPLAYERS + 1];
+StringMap simpleWhitelist;
 
 public Plugin myinfo = 
 {
@@ -35,10 +36,15 @@ public void OnPluginStart()
 		LogError(error);
 }
 
+public void OnMapStart()
+{
+	loadWhitelist();
+}
+
 public void OnClientPostAdminCheck(int client)
 {
 	locked[client] = false;
-	if (checkImmunity(client))
+	if (!IsClientInGame(client) || checkImmunity(client))
 	{
 		return;
 	}
@@ -54,15 +60,27 @@ static bool checkNameURL(int client, char name[MAX_NAME_LENGTH])
 	if (matchCount > 0)
 	{
 		locked[client] = true;
+		bool replaced = false;
 		for (int i = 0; i < matchCount; i++)
 		{
 			//Substrings start at 0
 			GetRegexSubString(urlPattern, i, match, sizeof(match));
-			if (name[0] && match[0])
+			if (name[0] && match[0] && !inWhitelist(client, match))
+			{
+				replaced = true;
 				ReplaceString(name, sizeof(name), match, "", false);
+			}
 		}
+
+		if (!replaced)
+		{ //User had whitelisted urls.
+			return false;
+		}
+
 		if (!name[0])
+		{
 			strcopy(name, sizeof(name), "URL Removed");
+		}
 		
 		//Thanks to https://forums.alliedmods.net/showpost.php?p=2497716&postcount=9
 		char alias[32];
@@ -70,7 +88,7 @@ static bool checkNameURL(int client, char name[MAX_NAME_LENGTH])
 		SetClientName(client, alias);
 		
 		DataPack packName = new DataPack();
-		packName.WriteCell(client);
+		packName.WriteCell(GetClientUserId(client));
 		packName.WriteString(name);
 		RequestFrame(delayedNameChange, packName); 
 		
@@ -84,7 +102,11 @@ static void delayedNameChange(any data)
 {
 	DataPack packName = data;
 	packName.Reset();
-	int client = packName.ReadCell();
+	int client = GetClientOfUserId(packName.ReadCell());
+	if(client < 1 || client > MaxClients || !IsClientInGame(client))
+	{
+		return;
+	}
 	char name[MAX_NAME_LENGTH];
 	packName.ReadString(name, sizeof(name));
 	SetClientName(client, name);
@@ -130,8 +152,47 @@ public Action SayText2(UserMsg msg_id, Handle bf, int[] players, int playersNum,
 	return Plugin_Continue;
 } 
 
-
 public bool checkImmunity(int client)
 {
 	return (IsFakeClient(client) || IsClientReplay(client) || IsClientSourceTV(client) || CheckCommandAccess(client, "sm_smartlinkremover", ADMFLAG_ROOT, false));
+}
+
+public void loadWhitelist()
+{
+	simpleWhitelist = clearStringMap(simpleWhitelist);
+	char tempPath[PLATFORM_MAX_PATH];
+	BuildPath(Path_SM, tempPath, sizeof(tempPath),"configs/SmartLink_whitelist.cfg");
+	SMCParser parser = new SMCParser();
+	parser.OnKeyValue = whitelistKeyValue;
+	parser.ParseFile(tempPath);
+}
+
+public SMCResult whitelistKeyValue(SMCParser smc, const char[] key, const char[] value, bool key_quotes, bool value_quotes)
+{
+	simpleWhitelist.SetValue(key, ReadFlagString(value));
+}
+
+public StringMap clearStringMap(StringMap stringMap)
+{
+	if (stringMap != null)
+	{
+		delete stringMap;
+	}
+	return new StringMap();
+}
+
+public bool inWhitelist(int client, char[] url)
+{
+	if (simpleWhitelist == null)
+	{
+		LogError("Something went wrong with the whitelist StringMap!");
+	}
+
+	int flagBit;
+	if (simpleWhitelist.GetValue(url, flagBit))
+	{ //Match to the user if they have flag, or if the flag is an empty string.
+		return flagBit == 0 || GetUserFlagBits(client) & flagBit;
+	}
+
+	return false; //No matches in the whitelist.
 }
