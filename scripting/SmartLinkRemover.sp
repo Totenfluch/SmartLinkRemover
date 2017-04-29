@@ -44,7 +44,7 @@ public void OnMapStart()
 public void OnClientPostAdminCheck(int client)
 {
 	locked[client] = false;
-	if (IsClientInGame(client) && checkImmunity(client))
+	if (!IsClientInGame(client) || checkImmunity(client))
 	{
 		return;
 	}
