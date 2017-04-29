@@ -1,6 +1,6 @@
 #pragma semicolon 1
 
-#define PLUGIN_VERSION "1.6.0"
+#define PLUGIN_VERSION "1.6.1"
 
 #include <sourcemod>
 #include <sdktools>
@@ -44,7 +44,7 @@ public void OnMapStart()
 public void OnClientPostAdminCheck(int client)
 {
 	locked[client] = false;
-	if (checkImmunity(client))
+	if (IsClientInGame(client) && checkImmunity(client))
 	{
 		return;
 	}
@@ -88,7 +88,7 @@ static bool checkNameURL(int client, char name[MAX_NAME_LENGTH])
 		SetClientName(client, alias);
 		
 		DataPack packName = new DataPack();
-		packName.WriteCell(client);
+		packName.WriteCell(GetClientUserId(client));
 		packName.WriteString(name);
 		RequestFrame(delayedNameChange, packName); 
 		
@@ -102,7 +102,11 @@ static void delayedNameChange(any data)
 {
 	DataPack packName = data;
 	packName.Reset();
-	int client = packName.ReadCell();
+	int client = GetClientOfUserId(packName.ReadCell());
+	if(client < 1 || client > MaxClients || !IsClientInGame(client))
+	{
+		return;
+	}
 	char name[MAX_NAME_LENGTH];
 	packName.ReadString(name, sizeof(name));
 	SetClientName(client, name);
