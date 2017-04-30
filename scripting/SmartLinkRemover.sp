@@ -1,6 +1,6 @@
 #pragma semicolon 1
 
-#define PLUGIN_VERSION "1.6.1"
+#define PLUGIN_VERSION "1.6.2"
 
 #include <sourcemod>
 #include <sdktools>
@@ -12,6 +12,9 @@ Regex urlPattern;
 RegexError theError;
 bool locked[MAXPLAYERS + 1];
 StringMap simpleWhitelist;
+
+ConVar cEmptyName;
+ConVar cKeepHalf;
 
 public Plugin myinfo = 
 {
@@ -25,6 +28,10 @@ public Plugin myinfo =
 public void OnPluginStart()
 {
 	CreateConVar("sm_smarturlremover_version", PLUGIN_VERSION, "Smart URL Remover Version", FCVAR_REPLICATED|FCVAR_DONTRECORD);
+	cEmptyName = CreateConVar("sm_smarturlremover_emptyname", "URL Removed", "The name to replace full name urls with.");
+	cKeepHalf = CreateConVar("sm_smarturlremover_keephalf", "1", "Attempt to keep partial url as the player's name when full url (Google.com -> Google)");
+	
+	AutoExecConfig(true, "SmartLinkRemover");
 
 	HookEvent("player_changename", onPlayerNameChange, EventHookMode_Pre);
 	HookUserMessage(GetUserMessageId("SayText2"), SayText2, true);
@@ -68,6 +75,16 @@ static bool checkNameURL(int client, char name[MAX_NAME_LENGTH])
 			if (name[0] && match[0] && !inWhitelist(client, match))
 			{
 				replaced = true;
+				if (cKeepHalf.BoolValue && StrEqual(match, name))
+				{
+					char tempBuffer[MAX_NAME_LENGTH];
+					if(SplitString(match, ".", tempBuffer, sizeof(tempBuffer)) >= 0)
+					{
+						//Attempt to keep some of the url.
+						Format(name, sizeof(name), tempBuffer);
+						continue;
+					}
+				} 
 				ReplaceString(name, sizeof(name), match, "", false);
 			}
 		}
@@ -79,7 +96,7 @@ static bool checkNameURL(int client, char name[MAX_NAME_LENGTH])
 
 		if (!name[0])
 		{
-			strcopy(name, sizeof(name), "URL Removed");
+			cEmptyName.GetString(name, sizeof(name));
 		}
 		
 		//Thanks to https://forums.alliedmods.net/showpost.php?p=2497716&postcount=9
