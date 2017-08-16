@@ -39,9 +39,9 @@ public void OnClientPostAdminCheck(int client) {
 
 public Action onPlayerSpawn(Handle event, const char[] name, bool dontBroadcast) {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
-	char cname[MAX_NAME_LENGTH];
+	char cname[MAX_NAME_LENGTH + 8];
 	GetClientName(client, cname, sizeof(cname));
-	char match[MAX_NAME_LENGTH];
+	char match[MAX_NAME_LENGTH + 8];
 	bool changed = false;
 	MatchRegex(urlPattern, cname, theError);
 	if (GetRegexSubString(urlPattern, 0, match, sizeof(match))) {
@@ -60,9 +60,9 @@ public Action onPlayerNameChange(Handle event, const char[] name, bool dontBroad
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
 	if (locked[client])
 		return Plugin_Changed;
-	char cname[MAX_NAME_LENGTH];
+	char cname[MAX_NAME_LENGTH + 8];
 	GetClientName(client, cname, sizeof(cname));
-	char match[MAX_NAME_LENGTH];
+	char match[MAX_NAME_LENGTH + 8];
 	MatchRegex(urlPattern, cname, theError);
 	if (GetRegexSubString(urlPattern, 0, match, sizeof(match))) {
 		if (locked[client])
