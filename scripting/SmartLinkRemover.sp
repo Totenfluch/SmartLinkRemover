@@ -179,9 +179,14 @@ public void loadWhitelist()
 {
 	simpleWhitelist = clearStringMap(simpleWhitelist);
 	char tempPath[PLATFORM_MAX_PATH];
-	BuildPath(Path_SM, tempPath, sizeof(tempPath),"configs/SmartLink_whitelist.cfg");
-	SMCParser parser = new SMCParser();
-	parser.OnKeyValue = whitelistKeyValue;
+	BuildPath(Path_SM, tempPath, sizeof(tempPath), "configs/SmartLink_whitelist.cfg");
+	
+	static SMCParser parser = null;
+	if (parser == null)
+	{
+		parser = new SMCParser();
+		parser.OnKeyValue = whitelistKeyValue;
+	}
 	parser.ParseFile(tempPath);
 }
 
