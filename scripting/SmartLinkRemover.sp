@@ -122,6 +122,7 @@ static void delayedNameChange(any data)
 	int client = GetClientOfUserId(packName.ReadCell());
 	if(client < 1 || client > MaxClients || !IsClientInGame(client))
 	{
+		delete packName;
 		return;
 	}
 	char name[MAX_NAME_LENGTH];
