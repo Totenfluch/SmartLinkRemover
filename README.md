@@ -17,6 +17,7 @@ Drag and Drop all Files into the appropriate Directories
 ```
 // => Comment
 In the First Quotes put the Whitelisted Phrase/Site
+
 In the Second Quotes put the Flags or Flags you want the Phrases/Sites to be allowed
 
 ## Regex
@@ -24,14 +25,22 @@ The Following expression is used to identify unwanted Sites/IPs/Phrases in a Pla
 ```
 ([ ]*[0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}[:0-9]{0,6})|([ ]*[-a-zA-Z0-9]*(([.])([a-zA-Z]){2,5}))
 ```
-###Notes: 
-
-[ ]* => ensures SMAC Compatibility
+### Notes: 
+```
+[ ]*
+```
+ensures SMAC Compatibility
 ( https://forums.alliedmods.net/showpost.php?p=2578145&postcount=52 )
 
-([ ]*[0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}[:0-9]{0,6}) => Captures IP:Port or only Ip
+```
+([ ]*[0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}[:0-9]{0,6})
+```
+Captures IP:Port or only Ip
 
-([ ]*[-a-zA-Z0-9]*(([.])([a-zA-Z]){2,5})) => Captures a Website URL
+```
+([ ]*[-a-zA-Z0-9]*(([.])([a-zA-Z]){2,5}))
+```
+Captures a Website URL
 
 
 
