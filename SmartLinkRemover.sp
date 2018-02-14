@@ -28,7 +28,7 @@ public void OnPluginStart() {
 	HookUserMessage(GetUserMessageId("SayText2"), SayText2, true);
 	
 	char error[256];
-	urlPattern = CompileRegex("([-a-zA-Z0-9]*(([.])([a-zA-Z]){2,5}))", PCRE_CASELESS, error, sizeof(error), theError);
+	urlPattern = CompileRegex("([ ]*[0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}[:0-9]{0,6})|([ ]*[-a-zA-Z0-9]*(([.])([a-zA-Z]){2,5}))", PCRE_CASELESS, error, sizeof(error), theError);
 	if (!StrEqual(error, ""))
 		LogError(error);
 }
