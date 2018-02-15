@@ -23,7 +23,7 @@ In the Second Quotes put the Flags or Flags you want the Phrases/Sites to be all
 ## Regex
 The Following expression is used to identify unwanted Sites/IPs/Phrases in a Players Name
 ```
-([ ]*[0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}[:0-9]{0,6})|([ ]*[-a-zA-Z0-9]*(([.])([a-zA-Z]){2,5}))
+([ ]*[0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}[.][0-9]{1,3}[:0-9]{0,6})|([ ]*(http:[/]{2}|https:[/]{2}|www[.])?([-a-zA-Z0-9]{2,}[.][a-zA-Z]{2,5})([a-zA-Z0-9]*?[.][a-zA-Z0-9]{2,5})?([/][a-zA-Z0-9]*)*(?=[^a-zA-Z0-9]|$))
 ```
 ### Notes: 
 ```
@@ -38,7 +38,7 @@ ensures SMAC Compatibility
 Captures IP:Port or only Ip
 
 ```
-([ ]*[-a-zA-Z0-9]*(([.])([a-zA-Z]){2,5}))
+([ ]*(http:[/]{2}|https:[/]{2}|www[.])?([-a-zA-Z0-9]{2,}[.][a-zA-Z]{2,5})([a-zA-Z0-9]*?[.][a-zA-Z0-9]{2,5})?([/][a-zA-Z0-9]*)*(?=[^a-zA-Z0-9]|$))
 ```
 Captures a Website URL
 
