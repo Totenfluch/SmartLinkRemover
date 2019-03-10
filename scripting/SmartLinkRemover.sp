@@ -17,8 +17,8 @@ ConVar cEmptyName;
 ConVar cKeepHalf;
 
 public Plugin myinfo = {
-	name = "Smart URL Remover", 
-	author = "Totenfluch [Fix by Agent Wesker]", 
+	name = "Smart Link Remover", 
+	author = "Totenfluch, Mitch, Agent Wesker", 
 	description = "Removes all Links from Player Names", 
 	version = PLUGIN_VERSION, 
 	url = "https://totenfluch.de"
