@@ -1,12 +1,11 @@
-#pragma semicolon 1
-
-#define PLUGIN_VERSION "1.6.2"
-
 #include <sourcemod>
 #include <sdktools>
 #include <regex>
 
+#pragma semicolon 1
 #pragma newdecls required
+
+#define PLUGIN_VERSION "1.6.2"
 
 Regex urlPattern;
 RegexError regexError;
