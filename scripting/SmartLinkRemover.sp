@@ -20,7 +20,7 @@ public Plugin myinfo = {
 	author = "Totenfluch, Mitch, Agent Wesker", 
 	description = "Removes all Links from Player Names", 
 	version = PLUGIN_VERSION, 
-	url = "https://totenfluch.de"
+	url = "https://github.com/Totenfluch/SmartLinkRemover"
 };
 
 public void OnPluginStart() {
